@@ -1,9 +1,13 @@
 class CookieJar
+  def initialize
+    @cookies = []
+  end
+
   def set_cookie(cookie)
-    @cookie = cookie
+    @cookies << cookie
   end
 
   def cookie
-    @cookie.split(";").first
+    @cookies.map { |cookie| cookie.split(";").first }.join("; ")
   end
 end
