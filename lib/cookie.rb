@@ -1,3 +1,5 @@
+require "time"
+
 class Cookie
   attr_reader :name, :value, :attributes
 
@@ -13,6 +15,10 @@ class Cookie
     new(name, value, Hash[attributes])
   end
 
+  def expired?(now = Time.now)
+    expiry_time && expiry_time < now
+  end
+
   def ==(other)
     name == other.name && value == other.value && attributes == other.attributes
   end
@@ -23,5 +29,13 @@ class Cookie
 
   def hash
     [name, value, attributes].hash
+  end
+
+  private
+
+  def expiry_time
+    if attributes.key?("Expires")
+      Time.parse(attributes["Expires"])
+    end
   end
 end

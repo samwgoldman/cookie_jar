@@ -16,4 +16,14 @@ describe Cookie do
     cookie.value.should eq("31d4d96e407aad42")
     cookie.attributes.should eq("Path" => "/", "Secure" => nil, "HttpOnly" => nil)
   end
+
+  it "is expired if the expiry time is in the past" do
+    cookie = Cookie.parse("lang=en-US; Expires=Sun, 06 Nov 1994 08:49:37 GMT")
+    cookie.should be_expired
+  end
+
+  it "does not expire if no expiry time is set" do
+    cookie = Cookie.parse("SID=31d4d96e407aad42; Path=/; Secure; HttpOnly")
+    cookie.should_not be_expired
+  end
 end
