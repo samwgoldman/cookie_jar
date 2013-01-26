@@ -1,6 +1,5 @@
 class Cookie
   attr_reader :name, :value, :attributes
-  protected :name, :value, :attributes
 
   def initialize(name, value, attributes = {})
     @name = name
@@ -8,7 +7,10 @@ class Cookie
     @attributes = attributes
   end
 
+  # FIXME: §4.1.1 compliance
   def self.parse(cookie_string)
+    (name, value), *attributes = cookie_string.split("; ").map { |part| part.split("=") }
+    new(name, value, Hash[attributes])
   end
 
   def ==(other)
