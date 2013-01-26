@@ -4,6 +4,6 @@ class CookieJar
   end
 
   def cookie
-    @cookie
+    @cookie.split(";").first
   end
 end
