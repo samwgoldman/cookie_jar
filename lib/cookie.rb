@@ -1,6 +1,8 @@
 require "time"
 
 class Cookie
+  InvalidCookie = Class.new(Exception)
+
   attr_reader :name, :value, :attributes
 
   def initialize(name, value, attributes = {})
@@ -9,9 +11,16 @@ class Cookie
     @attributes = attributes
   end
 
-  # FIXME: §4.1.1 compliance
   def self.parse(cookie_string)
     (name, value), *attributes = cookie_string.split("; ").map { |part| part.split("=") }
+    raise InvalidCookie.new("incomplete name-value pair") if value.nil?
+    name.strip!
+    value.strip!
+    raise InvalidCookie.new("name string is empty") if name.empty?
+    attributes.each do |key, value|
+      key.strip!
+      value.strip! unless value.nil?
+    end
     new(name, value, Hash[attributes])
   end
 

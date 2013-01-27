@@ -17,6 +17,29 @@ describe Cookie do
     cookie.attributes.should eq("Path" => "/", "Secure" => nil, "HttpOnly" => nil)
   end
 
+  it "ignores the set-cookie-string if it lacks a = character in the name-value pair" do
+    expect {
+      Cookie.parse("SID31d4d96e407aad42; Path=/; Secure; HttpOnly")
+    }.to raise_error(Cookie::InvalidCookie, "incomplete name-value pair")
+  end
+
+  it "removes any leading or trailing white space from the name string and value string" do
+    cookie = Cookie.parse(" SID\t=\t31d4d96e407aad42 ")
+    cookie.name.should eq("SID")
+    cookie.value.should eq("31d4d96e407aad42")
+  end
+
+  it "ignores the set-cookie-string if the name string is empty" do
+    expect {
+      cookie = Cookie.parse("=31d4d96e407aad42")
+    }.to raise_error(Cookie::InvalidCookie, "name string is empty")
+  end
+
+  it "removes any leading or trailing white space from the attribute-name string and attribute-value string" do
+    cookie = Cookie.parse("SID=31d4d96e407aad42; Path\t= /\t; Secure\t")
+    cookie.attributes.should eq("Path" => "/", "Secure" => nil)
+  end
+
   it "is expired if the expiry time is in the past" do
     cookie = Cookie.parse("lang=en-US; Expires=Sun, 06 Nov 1994 08:49:37 GMT")
     cookie.should be_expired
