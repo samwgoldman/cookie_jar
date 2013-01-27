@@ -24,13 +24,19 @@ class Cookie
       key.downcase!
       value.strip! unless value.nil?
     end
-    new(name, value, Hash[attributes], now)
+    attributes = Hash[attributes]
+    if attributes.key?("domain")
+      attributes["domain"].sub!(/\A\./, "")
+      attributes["domain"].downcase!
+    end
+    if attributes.key?("domain") && attributes["domain"] != request_uri.host
+      raise InvalidCookie.new("cookie domain does not match the request host")
+    end
+    new(name, value, attributes, now)
   end
 
   def domain
-    if attributes.key?("domain")
-      attributes["domain"].sub(/\A\./, "").downcase
-    end
+    attributes["domain"]
   end
 
   def path

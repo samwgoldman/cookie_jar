@@ -129,4 +129,11 @@ describe Cookie do
     cookie = Cookie.parse(request_uri, "lang=en-US; Domain=eXaMpLe.cOm")
     cookie.domain.should eq("example.com")
   end
+
+  it "ignores the set-cookie-string if the request host does not match the Domain attribute-value" do
+    request_uri = URI.parse("http://example.com")
+    expect {
+      Cookie.parse(request_uri, "lang=en-US; Domain=ietf.org")
+    }.to raise_error(Cookie::InvalidCookie, "cookie domain does not match the request host")
+  end
 end
