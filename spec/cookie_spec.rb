@@ -14,7 +14,9 @@ describe Cookie do
     cookie = Cookie.parse("SID=31d4d96e407aad42; Path=/; Secure; HttpOnly")
     cookie.name.should eq("SID")
     cookie.value.should eq("31d4d96e407aad42")
-    cookie.attributes.should eq("Path" => "/", "Secure" => nil, "HttpOnly" => nil)
+    cookie.path.should eq("/")
+    cookie.should be_secure
+    cookie.should be_http_only
   end
 
   it "ignores the set-cookie-string if it lacks a = character in the name-value pair" do
@@ -37,7 +39,8 @@ describe Cookie do
 
   it "removes any leading or trailing white space from the attribute-name string and attribute-value string" do
     cookie = Cookie.parse("SID=31d4d96e407aad42; Path\t= /\t; Secure\t")
-    cookie.attributes.should eq("Path" => "/", "Secure" => nil)
+    cookie.path.should eq("/")
+    cookie.should be_secure
   end
 
   it "is expired if the expiry time is in the past" do

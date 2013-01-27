@@ -4,6 +4,7 @@ class Cookie
   InvalidCookie = Class.new(Exception)
 
   attr_reader :name, :value, :attributes
+  protected :attributes
 
   def initialize(name, value, attributes = {})
     @name = name
@@ -24,8 +25,20 @@ class Cookie
     new(name, value, Hash[attributes])
   end
 
+  def path
+    attributes["Path"]
+  end
+
   def expired?(now = Time.now)
     expiry_time && expiry_time < now
+  end
+
+  def secure?
+    attributes.key?("Secure")
+  end
+
+  def http_only?
+    attributes.key?("HttpOnly")
   end
 
   def ==(other)
