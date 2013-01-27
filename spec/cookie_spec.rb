@@ -143,4 +143,18 @@ describe Cookie do
     cookie = Cookie.parse(request_uri, "lang=en-US")
     cookie.path.should eq("/foo/bar")
   end
+
+  it "ignores the set-cookie-string if the request uri is non-HTTP and http-only-flag is set" do
+    request_uri = URI.parse("ftp://example.com")
+    expect {
+      Cookie.parse(request_uri, "lang=en-US; HttpOnly")
+    }.to raise_error(Cookie::InvalidCookie, "HTTP only cookie received from non-HTTP API")
+  end
+
+  it "allows HttpOnly cookies from HTTPS APIs" do
+    request_uri = URI.parse("https://example.com")
+    expect {
+      Cookie.parse(request_uri, "lang=en-US; HttpOnly")
+    }.not_to raise_error
+  end
 end

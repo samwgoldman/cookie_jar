@@ -37,6 +37,9 @@ class Cookie
     if attributes.key?("domain") && attributes["domain"] != request_uri.host
       raise InvalidCookie.new("cookie domain does not match the request host")
     end
+    if attributes.key?("httponly") && request_uri.scheme !~ /\Ahttps?\Z/
+      raise InvalidCookie.new("HTTP only cookie received from non-HTTP API")
+    end
     new(name, value, attributes, now)
   end
 
