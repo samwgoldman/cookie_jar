@@ -43,13 +43,23 @@ describe Cookie do
     cookie.should be_secure
   end
 
-  it "is expired if the expiry time is in the past" do
+  it "is expired if the Expires attribute-value is in the past" do
     cookie = Cookie.parse("lang=en-US; Expires=Sun, 06 Nov 1994 08:49:37 GMT")
     cookie.should be_expired
   end
 
-  it "does not expire if no expiry time is set" do
+  it "case-insensitively matches the Expires attribute-name" do
+    cookie = Cookie.parse("lang=en-US; eXpIrEs=Sun, 06 Nov 1994 08:49:37 GMT")
+    cookie.should be_expired
+  end
+
+  it "does not expire if no Expires attribute-value is set" do
     cookie = Cookie.parse("SID=31d4d96e407aad42; Path=/; Secure; HttpOnly")
+    cookie.should_not be_expired
+  end
+
+  it "does not expire if the Expires attribute-value fails to parse" do
+    cookie = Cookie.parse("lang=en-US; Expires=ABCDEFG")
     cookie.should_not be_expired
   end
 end

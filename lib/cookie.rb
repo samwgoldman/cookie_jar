@@ -20,13 +20,14 @@ class Cookie
     raise InvalidCookie.new("name string is empty") if name.empty?
     attributes.each do |key, value|
       key.strip!
+      key.downcase!
       value.strip! unless value.nil?
     end
     new(name, value, Hash[attributes])
   end
 
   def path
-    attributes["Path"]
+    attributes["path"]
   end
 
   def expired?(now = Time.now)
@@ -34,11 +35,11 @@ class Cookie
   end
 
   def secure?
-    attributes.key?("Secure")
+    attributes.key?("secure")
   end
 
   def http_only?
-    attributes.key?("HttpOnly")
+    attributes.key?("httponly")
   end
 
   def ==(other)
@@ -56,8 +57,8 @@ class Cookie
   private
 
   def expiry_time
-    if attributes.key?("Expires")
-      Time.parse(attributes["Expires"])
+    if attributes.key?("expires")
+      Time.parse(attributes["expires"]) rescue nil
     end
   end
 end
