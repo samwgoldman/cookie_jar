@@ -137,4 +137,10 @@ describe Cookie do
     cookie = Cookie.parse(request_uri, "lang=en-US")
     cookie.domain.should eq("example.com")
   end
+
+  it "uses the request path as the cookie path if the Path attribute-value is empty" do
+    request_uri = URI.parse("http://example.com/foo/bar?baz")
+    cookie = Cookie.parse(request_uri, "lang=en-US")
+    cookie.path.should eq("/foo/bar")
+  end
 end
