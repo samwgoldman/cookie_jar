@@ -115,11 +115,6 @@ describe Cookie do
     cookie.domain.should eq("example.com")
   end
 
-  it "does not have a domain if the Domain attribute is missing" do
-    cookie = Cookie.parse(request_uri, "lang=en-US")
-    cookie.domain.should be_nil
-  end
-
   it "ignores the leading character of the Domain attribute-value, if it is a period (.)" do
     cookie = Cookie.parse(request_uri, "lang=en-US; Domain=.example.com")
     cookie.domain.should eq("example.com")
@@ -135,5 +130,11 @@ describe Cookie do
     expect {
       Cookie.parse(request_uri, "lang=en-US; Domain=ietf.org")
     }.to raise_error(Cookie::InvalidCookie, "cookie domain does not match the request host")
+  end
+
+  it "uses the request host as the cookie domain if the Domain attribute-value is empty" do
+    request_uri = URI.parse("http://example.com")
+    cookie = Cookie.parse(request_uri, "lang=en-US")
+    cookie.domain.should eq("example.com")
   end
 end

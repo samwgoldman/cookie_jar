@@ -28,6 +28,8 @@ class Cookie
     if attributes.key?("domain")
       attributes["domain"].sub!(/\A\./, "")
       attributes["domain"].downcase!
+    else
+      attributes["domain"] = request_uri.host
     end
     if attributes.key?("domain") && attributes["domain"] != request_uri.host
       raise InvalidCookie.new("cookie domain does not match the request host")
