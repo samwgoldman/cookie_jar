@@ -13,7 +13,7 @@ class Cookie
     @created_at = now
   end
 
-  def self.parse(cookie_string, now = Time.now)
+  def self.parse(request_uri, cookie_string, now = Time.now)
     (name, value), *attributes = cookie_string.split("; ").map { |part| part.split("=") }
     raise InvalidCookie.new("incomplete name-value pair") if value.nil?
     name.strip!
