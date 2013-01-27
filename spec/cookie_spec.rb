@@ -62,4 +62,44 @@ describe Cookie do
     cookie = Cookie.parse("lang=en-US; Expires=ABCDEFG")
     cookie.should_not be_expired
   end
+
+  it "is expired if the Max-Age attribute-value has passed since the cookie was created" do
+    now = Time.now - 60
+    cookie = Cookie.parse("lang=en-US; Max-Age=60", now)
+    cookie.should be_expired
+  end
+
+  it "is not expired if the Max-Age attribute-value has not yet passed" do
+    now = Time.now - 60
+    cookie = Cookie.parse("lang=en-US; Max-Age=61", now)
+    cookie.should_not be_expired
+  end
+
+  it "case-insensitively matches the Max-Age attribute name" do
+    now = Time.now - 60
+    cookie = Cookie.parse("lang=en-US; mAx-AgE=60", now)
+    cookie.should be_expired
+  end
+
+  it "is expired if the Max-Age attribute value is 0" do
+    cookie = Cookie.parse("lang=en-US; Max-Age=0")
+    cookie.should be_expired
+  end
+
+  it "is expired if the Max-Age attribute value is less than 0" do
+    cookie = Cookie.parse("lang=en-US; Max-Age=-1")
+    cookie.should be_expired
+  end
+
+  it "is not expired if the Max-Age attribute contains a non-digit character" do
+    now = Time.now - 60
+    cookie = Cookie.parse("lang=en-US; Max-Age=59s", now)
+    cookie.should_not be_expired
+  end
+
+  it "gives precedence to the Max-Age attribute over the Expires attribute" do
+    now = Time.now - 60
+    cookie = Cookie.parse("lang=en-US; Expires=Sun, 06 Nov 1994 08:49:37 GMT; Max-Age=61", now)
+    cookie.should_not be_expired
+  end
 end

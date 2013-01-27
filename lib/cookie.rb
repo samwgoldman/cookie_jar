@@ -6,13 +6,14 @@ class Cookie
   attr_reader :name, :value, :attributes
   protected :attributes
 
-  def initialize(name, value, attributes = {})
+  def initialize(name, value, attributes = {}, now = Time.now)
     @name = name
     @value = value
     @attributes = attributes
+    @created_at = now
   end
 
-  def self.parse(cookie_string)
+  def self.parse(cookie_string, now = Time.now)
     (name, value), *attributes = cookie_string.split("; ").map { |part| part.split("=") }
     raise InvalidCookie.new("incomplete name-value pair") if value.nil?
     name.strip!
@@ -23,7 +24,7 @@ class Cookie
       key.downcase!
       value.strip! unless value.nil?
     end
-    new(name, value, Hash[attributes])
+    new(name, value, Hash[attributes], now)
   end
 
   def path
@@ -57,7 +58,12 @@ class Cookie
   private
 
   def expiry_time
-    if attributes.key?("expires")
+    if attributes.key?("max-age")
+      seconds = attributes["max-age"].to_i
+      if seconds.to_s == attributes["max-age"]
+        @created_at + attributes["max-age"].to_i
+      end
+    elsif attributes.key?("expires")
       Time.parse(attributes["expires"]) rescue nil
     end
   end
