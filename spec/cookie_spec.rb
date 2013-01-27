@@ -157,4 +157,27 @@ describe Cookie do
       Cookie.parse(request_uri, "lang=en-US; HttpOnly")
     }.not_to raise_error
   end
+
+  it "uses the last Max-Age attribute if there are multiple" do
+    now = Time.now - 60
+    cookie = Cookie.parse(request_uri, "lang=en-US; Max-Age=61; Max-Age=60", now)
+    cookie.should be_expired
+  end
+
+  it "uses the last Expires attribute if there are multiple" do
+    now = Time.gm(1994, "Nov", 6, 8, 49, 38)
+    cookie = Cookie.parse(request_uri, "lang=en-US; Expires=Sun, 06 Nov 1994 08:49:39 GMT; Expires=Sun, 06 Nov 1994 08:49:37 GMT")
+    cookie.should be_expired(now)
+  end
+
+  it "uses the last Domain attribute if there are multiple" do
+    request_uri = URI.parse("http://example.com")
+    cookie = Cookie.parse(request_uri, "lang=en-US; Domain=ietf.org; Domain=example.com")
+    cookie.domain.should eq("example.com")
+  end
+
+  it "uses the last Path attribute if there are multiple" do
+    cookie = Cookie.parse(request_uri, "lang=en-US; Path=/foo/bar; Path=/baz/quux")
+    cookie.path.should eq("/baz/quux")
+  end
 end
