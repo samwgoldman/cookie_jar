@@ -102,4 +102,29 @@ describe Cookie do
     cookie = Cookie.parse("lang=en-US; Expires=Sun, 06 Nov 1994 08:49:37 GMT; Max-Age=61", now)
     cookie.should_not be_expired
   end
+
+  it "exposes the Domain attribute-value" do
+    cookie = Cookie.parse("lang=en-US; Domain=example.com")
+    cookie.domain.should eq("example.com")
+  end
+
+  it "case-insensitively matches the Domain attribute-name" do
+    cookie = Cookie.parse("lang=en-US; dOmAiN=example.com")
+    cookie.domain.should eq("example.com")
+  end
+
+  it "does not have a domain if the Domain attribute is missing" do
+    cookie = Cookie.parse("lang=en-US")
+    cookie.domain.should be_nil
+  end
+
+  it "ignores the leading character of the Domain attribute-value, if it is a period (.)" do
+    cookie = Cookie.parse("lang=en-US; Domain=.example.com")
+    cookie.domain.should eq("example.com")
+  end
+
+  it "converts the Domain attribute-value to lowercase" do
+    cookie = Cookie.parse("lang=en-US; Domain=eXaMpLe.cOm")
+    cookie.domain.should eq("example.com")
+  end
 end

@@ -27,6 +27,12 @@ class Cookie
     new(name, value, Hash[attributes], now)
   end
 
+  def domain
+    if attributes.key?("domain")
+      attributes["domain"].sub(/\A\./, "").downcase
+    end
+  end
+
   def path
     attributes["path"]
   end
