@@ -21,6 +21,12 @@ describe CookieJar do
     jar.cookie.should eq("SID=31d4d96e407aad42; lang=en-US")
   end
 
+  it "does not replace HTTP-only cookies with cookies from a non-HTTP API" do
+    jar.set_cookie(URI.parse("http://example.com"), "lang=en-US; HttpOnly")
+    jar.set_cookie(URI.parse("ftp://example.com"), "lang=en-GB")
+    jar.cookie.should eq("lang=en-US")
+  end
+
   context "with a couple cookies" do
     let(:now) { Time.now - 60 }
 

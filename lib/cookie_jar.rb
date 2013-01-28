@@ -10,7 +10,11 @@ class CookieJar
     existing_cookie = @cookies.find { |c| c.matches?(cookie) }
     if existing_cookie
       @cookies.delete(existing_cookie)
-      cookie = existing_cookie.replace(cookie)
+      begin
+        cookie = existing_cookie.replace(request_uri, cookie)
+      rescue Cookie::InvalidCookie
+        cookie = existing_cookie
+      end
     end
     @cookies << cookie unless cookie.expired?
   end

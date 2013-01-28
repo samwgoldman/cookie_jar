@@ -60,8 +60,12 @@ class Cookie
     attributes["path"]
   end
 
-  def replace(new_cookie)
-    Cookie.new(name, new_cookie.value, new_cookie.attributes, @created_at)
+  def replace(request_uri, new_cookie)
+    if http_only? && request_uri.scheme !~ /\Ahttps?\Z/
+      raise InvalidCookie.new("cannot replace HTTP-only cookie with non-HTTP cookie")
+    else
+      Cookie.new(name, new_cookie.value, new_cookie.attributes, @created_at)
+    end
   end
 
   def expired?(now = Time.now)

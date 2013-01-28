@@ -234,7 +234,15 @@ describe Cookie do
     now = Time.now - 60
     old_cookie = Cookie.parse(request_uri, "lang=en-US; Max-Age=90", now)
     new_cookie = Cookie.parse(request_uri, "lang=en-GB; Max-Age=30")
-    replaced = old_cookie.replace(new_cookie)
+    replaced = old_cookie.replace(request_uri, new_cookie)
     expect(replaced).to be_expired
+  end
+
+  it "does not replace HTTP-only cookies with cookies from a non-HTTP API" do
+    old_cookie = Cookie.parse(URI.parse("http://example.com"), "lang=en-US; HttpOnly")
+    new_cookie = Cookie.parse(URI.parse("ftp://example.com"), "lang=en-GB")
+    expect {
+      old_cookie.replace(URI.parse("ftp://example.com"), new_cookie)
+    }.to raise_error(Cookie::InvalidCookie, "cannot replace HTTP-only cookie with non-HTTP cookie")
   end
 end
