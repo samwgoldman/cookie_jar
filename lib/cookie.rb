@@ -31,8 +31,17 @@ class Cookie
     else
       attributes["domain"] = request_uri.host
     end
-    unless attributes.key?("path")
-      attributes["path"] = request_uri.path
+    if !attributes.key?("path") || attributes["path"].nil? || attributes["path"].empty? || attributes["path"][0] != "/"
+      if request_uri.path.empty? || request_uri.path[0] != "/"
+        attributes["path"] = "/"
+      else
+        default_path = request_uri.path.split("/")[0..-2].join("/")
+        if default_path.empty?
+          attributes["path"] = "/"
+        else
+          attributes["path"] = default_path
+        end
+      end
     end
     if attributes.key?("domain") && attributes["domain"] != request_uri.host
       raise InvalidCookie.new("cookie domain does not match the request host")

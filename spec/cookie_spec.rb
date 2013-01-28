@@ -1,4 +1,5 @@
 require "cookie"
+require "ostruct"
 require "uri"
 
 describe Cookie do
@@ -138,10 +139,46 @@ describe Cookie do
     cookie.domain.should eq("example.com")
   end
 
-  it "uses the request path as the cookie path if the Path attribute-value is empty" do
+  it "uses the default path as the cookie path if the Path attribute-value is missing" do
     request_uri = URI.parse("http://example.com/foo/bar?baz")
     cookie = Cookie.parse(request_uri, "lang=en-US")
-    cookie.path.should eq("/foo/bar")
+    cookie.path.should eq("/foo")
+  end
+
+  it "uses the default path as the cookie path if the Path attribute-value is empty" do
+    request_uri = URI.parse("http://example.com/foo/bar?baz")
+    cookie = Cookie.parse(request_uri, "lang=en-US; Path=")
+    cookie.path.should eq("/foo")
+  end
+
+  it "uses the default path as the cookie path if the Path attribute-value does not start with a slash (/)" do
+    request_uri = URI.parse("http://example.com/foo/bar?baz")
+    cookie = Cookie.parse(request_uri, "lang=en-US; Path=foobar")
+    cookie.path.should eq("/foo")
+  end
+
+  it "uses a default path of slash (/) if the Path attribute-value is missing and the uri-path is empty" do
+    request_uri = URI.parse("http://example.com")
+    cookie = Cookie.parse(request_uri, "lang=en-US; Path=foobar")
+    cookie.path.should eq("/")
+  end
+
+  it "uses a default path of slash (/) if the uri-path contains no more than one slash (/)" do
+    request_uri = URI.parse("http://example.com/foobar")
+    cookie = Cookie.parse(request_uri, "lang=en-US; Path=foobar")
+    cookie.path.should eq("/")
+  end
+
+  it "uses the uri-path up to, but not including the right-most slash (/)" do
+    request_uri = URI.parse("http://example.com/foo/bar")
+    cookie = Cookie.parse(request_uri, "lang=en-US; Path=foobar")
+    cookie.path.should eq("/foo")
+  end
+
+  it "uses a default path of slash (/) if the Path attribute-value is missing and the uri-path does not start with slash (/)" do
+    request_uri = OpenStruct.new(:scheme => "http", :host => "example.com", :path => "foobar")
+    cookie = Cookie.parse(request_uri, "lang=en-US; Path=foobar")
+    cookie.path.should eq("/")
   end
 
   it "ignores the set-cookie-string if the request uri is non-HTTP and http-only-flag is set" do
