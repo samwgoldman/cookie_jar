@@ -34,6 +34,28 @@ describe CookieJar do
     jar.cookie(later).should eq("")
   end
 
+  it "ignores cookies if the name-value-pair string lacks a equals (=) character" do
+    jar.set_cookie(request_uri, "langen-US")
+    jar.cookie.should eq("")
+  end
+
+  it "ignores cookies if the name string is empty" do
+    jar.set_cookie(request_uri, "=en-US")
+    jar.cookie.should eq("")
+  end
+
+  it "ignores cookies if the canonicalized request-host does not domain-match the domain-attribute" do
+    request_uri = URI.parse("http://example.com")
+    jar.set_cookie(request_uri, "lang=en-US; Domain=ietf.org")
+    jar.cookie.should eq("")
+  end
+
+  it "ignores cookies received from a non-HTTP API with the http-only-flag set" do
+    request_uri = URI.parse("ftp://example.com")
+    jar.set_cookie(request_uri, "lang=en-US; HttpOnly")
+    jar.cookie.should eq("")
+  end
+
   context "with a couple cookies" do
     let(:now) { Time.now - 60 }
 

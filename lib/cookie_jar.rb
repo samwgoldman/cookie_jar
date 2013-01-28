@@ -6,7 +6,11 @@ class CookieJar
   end
 
   def set_cookie(request_uri, cookie_string, now = Time.now)
-    cookie = Cookie.parse(request_uri, cookie_string, now)
+    begin
+      cookie = Cookie.parse(request_uri, cookie_string, now)
+    rescue Cookie::InvalidCookie
+      return
+    end
     existing_cookie = @cookies.find { |c| c.matches?(cookie) }
     if existing_cookie
       @cookies.delete(existing_cookie)
