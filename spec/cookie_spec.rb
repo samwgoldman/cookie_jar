@@ -133,10 +133,16 @@ describe Cookie do
     }.to raise_error(Cookie::InvalidCookie, "cookie domain does not match the request host")
   end
 
-  it "uses the request host as the cookie domain if the Domain attribute-value is empty" do
+  it "uses the request host as the cookie domain if the Domain attribute-value is missing" do
     request_uri = URI.parse("http://example.com")
     cookie = Cookie.parse(request_uri, "lang=en-US")
     cookie.domain.should eq("example.com")
+  end
+
+  it "ignores the set-cookie-string if the Domain attribute-value is empty" do
+    expect {
+      Cookie.parse(request_uri, "lang=en-US; Domain=")
+    }.to raise_error(Cookie::InvalidCookie, "cookie domain is empty")
   end
 
   it "uses the default path as the cookie path if the Path attribute-value is missing" do

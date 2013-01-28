@@ -15,23 +15,23 @@ class Cookie
 
   def self.parse(request_uri, cookie_string, now = Time.now)
     (name, value), *attributes = cookie_string.split("; ").map { |part| part.split("=") }
-    raise InvalidCookie.new("incomplete name-value pair") if value.nil?
-    name.strip!
-    value.strip!
+    name = name.strip
+    value = value.to_s.strip
     raise InvalidCookie.new("name string is empty") if name.empty?
-    attributes.each do |key, value|
-      key.strip!
-      key.downcase!
-      value.strip! unless value.nil?
-    end
+    raise InvalidCookie.new("incomplete name-value pair") if value.empty?
+    attributes.map! { |key, value| [key.strip.downcase, value.to_s.strip] }
     attributes = Hash[attributes]
     if attributes.key?("domain")
-      attributes["domain"].sub!(/\A\./, "")
-      attributes["domain"].downcase!
+      if attributes["domain"].empty?
+        raise InvalidCookie.new("cookie domain is empty")
+      else
+        attributes["domain"].sub!(/\A\./, "")
+        attributes["domain"].downcase!
+      end
     else
       attributes["domain"] = request_uri.host
     end
-    if !attributes.key?("path") || attributes["path"].nil? || attributes["path"].empty? || attributes["path"][0] != "/"
+    if !attributes.key?("path") || attributes["path"].empty? || attributes["path"][0] != "/"
       if request_uri.path.empty? || request_uri.path[0] != "/"
         attributes["path"] = "/"
       else
