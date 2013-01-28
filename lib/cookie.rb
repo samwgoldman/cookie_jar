@@ -60,6 +60,10 @@ class Cookie
     attributes["path"]
   end
 
+  def replace(new_cookie)
+    Cookie.new(name, new_cookie.value, new_cookie.attributes, @created_at)
+  end
+
   def expired?(now = Time.now)
     expiry_time && expiry_time < now
   end

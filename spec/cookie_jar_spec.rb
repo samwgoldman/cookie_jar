@@ -22,14 +22,21 @@ describe CookieJar do
   end
 
   context "with a couple cookies" do
+    let(:now) { Time.now - 60 }
+
     before do
-      jar.set_cookie(request_uri, "SID=31d4d96e407aad42; Path=/; Secure; HttpOnly")
-      jar.set_cookie(request_uri, "lang=en-US; Path=/; Domain=example.com")
+      jar.set_cookie(request_uri, "SID=31d4d96e407aad42; Path=/; Secure; HttpOnly", now)
+      jar.set_cookie(request_uri, "lang=en-US; Path=/; Domain=example.com; Max-Age=90", now)
     end
 
     it "contains at most one cookie with the same name, domain, and path" do
       jar.set_cookie(request_uri, "lang=en-GB; Path=/; Domain=example.com")
       jar.cookie.should eq("SID=31d4d96e407aad42; lang=en-GB")
+    end
+
+    it "keeps the same creation time when replaced with a matching cookie" do
+      jar.set_cookie(request_uri, "lang=en-US; Path=/; Domain=example.com; Max-Age=30", now)
+      jar.cookie.should eq("SID=31d4d96e407aad42")
     end
 
     it "removes cookies if set to expire in the past" do

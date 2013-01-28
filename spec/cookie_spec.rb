@@ -229,4 +229,12 @@ describe Cookie do
     new_cookie = Cookie.parse(request_uri, "lang=en-GB; Domain=example.com; Path=/")
     expect(old_cookie.matches?(new_cookie)).to be_true
   end
+
+  it "keeps the same creation time when replaced with a matching cookie" do
+    now = Time.now - 60
+    old_cookie = Cookie.parse(request_uri, "lang=en-US; Max-Age=90", now)
+    new_cookie = Cookie.parse(request_uri, "lang=en-GB; Max-Age=30")
+    replaced = old_cookie.replace(new_cookie)
+    expect(replaced).to be_expired
+  end
 end
