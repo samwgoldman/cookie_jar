@@ -27,6 +27,13 @@ describe CookieJar do
     jar.cookie.should eq("lang=en-US")
   end
 
+  it "evicts expired cookies" do
+    now = Time.now
+    later = now + 31
+    jar.set_cookie(request_uri, "lang=en-US; Max-Age=30", now)
+    jar.cookie(later).should eq("")
+  end
+
   context "with a couple cookies" do
     let(:now) { Time.now - 60 }
 

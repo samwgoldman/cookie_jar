@@ -19,7 +19,8 @@ class CookieJar
     @cookies << cookie unless cookie.expired?
   end
 
-  def cookie
+  def cookie(now = Time.now)
+    @cookies.reject! { |cookie| cookie.expired?(now) }
     @cookies.map { |cookie| "#{cookie.name}=#{cookie.value}" }.join("; ")
   end
 end
