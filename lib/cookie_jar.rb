@@ -7,12 +7,9 @@ class CookieJar
 
   def set_cookie(request_uri, cookie_string)
     cookie = Cookie.parse(request_uri, cookie_string)
-    existing_cookie = @cookies.find { |c| c.name == cookie.name }
-    if existing_cookie && cookie.expired?
-      @cookies.delete(existing_cookie)
-    else
-      @cookies << cookie
-    end
+    existing_cookie = @cookies.find { |c| c.matches?(cookie) }
+    @cookies.delete(existing_cookie) if existing_cookie
+    @cookies << cookie unless cookie.expired?
   end
 
   def cookie

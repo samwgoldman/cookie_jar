@@ -223,4 +223,10 @@ describe Cookie do
     cookie = Cookie.parse(request_uri, "lang=en-US; Path=/foo/bar; Path=/baz/quux")
     cookie.path.should eq("/baz/quux")
   end
+
+  it "matches another cookie with the same name, domain, and path" do
+    old_cookie = Cookie.parse(request_uri, "lang=en-US; Domain=example.com; Path=/")
+    new_cookie = Cookie.parse(request_uri, "lang=en-GB; Domain=example.com; Path=/")
+    expect(old_cookie.matches?(new_cookie)).to be_true
+  end
 end

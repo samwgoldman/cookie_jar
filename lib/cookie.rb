@@ -72,6 +72,10 @@ class Cookie
     attributes.key?("httponly")
   end
 
+  def matches?(other)
+    name == other.name && domain == other.domain && path == other.path
+  end
+
   def ==(other)
     name == other.name && value == other.value && attributes == other.attributes
   end
